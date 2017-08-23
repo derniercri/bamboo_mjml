@@ -5,7 +5,6 @@ defmodule Bamboo.PhoenixMjml do
     quote do
       import Bamboo.Email
       import Bamboo.PhoenixMjml
-      import Bamboo.Phoenix, only: []
       @email_view_module unquote(view)
 
       def render(email, template, assigns \\ []) do
