@@ -28,6 +28,9 @@ defmodule BambooMjml.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [
+      {:bamboo, "~> 0.7.0"},
+      {:uuid, "~> 1.1"}
+    ]
   end
 end

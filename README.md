@@ -1,6 +1,6 @@
 # BambooMjml
 
-**TODO: Add description**
+Allow Bamboo to render Mjml emails
 
 ## Installation
 
