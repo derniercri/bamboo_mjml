@@ -80,10 +80,14 @@ defmodule Bamboo.PhoenixMjml do
     File.mkdir("tmp")
     path = File.write!("/tmp/#{uuid}", mjml)
     case System.cmd("mjml", ["-s", path]) do
-      {html, 0} -> html
-      _         -> raise """
-        Mjml exited with non zero status, mail has not been compiled
-        """
+      {html, 0} ->
+        File.rm!(path)
+        html
+      _         ->
+        File.rm!(path)
+        raise """
+          Mjml exited with non zero status, mail has not been compiled
+          """
     end
   end
 end
