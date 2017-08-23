@@ -1,7 +1,7 @@
 defmodule Bamboo.PhoenixMjml do
 
   defmacro __using__(view: view) do
-    bamboo_phoenix_borrow(:verify_phoenix_dep)
+    apply(Bamboo.Phoenix, :verify_phoenix_dep, [])
     quote do
       import Bamboo.Email
       import Bamboo.PhoenixMjml
