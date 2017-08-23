@@ -30,11 +30,16 @@ defmodule Bamboo.PhoenixMjml do
 
   @doc false
   def render_email(view, email, template, assigns) do
-    email
-    |> bamboo_phoenix_borrow(:put_default_layouts)
-    |> bamboo_phoenix_borrow(:merge_assigns, [assigns])
-    |> bamboo_phoenix_borrow(:put_view, [view])
-    |> bamboo_phoenix_borrow(:put_template, [template])
+    Enum.reduce(
+      [
+        {:put_default_layouts, []},
+        {:merge_assigns, [assigns]},
+        {:put_view, [view]},
+        {:put_template, [template]}
+      ],
+      email,
+      fn({fun, args}, acc) -> bamboo_phoenix_borrow(acc, fun, args) end
+    )
     |> render
   end
 
