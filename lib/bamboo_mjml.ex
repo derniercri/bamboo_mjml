@@ -49,11 +49,10 @@ defmodule Bamboo.PhoenixMjml do
 
   defp render(email) do
     render_mjml_or_text_email(email)
-  end
+  end    
 
   defp render_mjml_and_text_emails(email) do
     view_template = Atom.to_string(email.private.template)
-
     email
       |> Map.put(:html_body, render_mjml(email, view_template <> ".html.mjml"))
       |> Map.put(:text_body, bamboo_phoenix_borrow(email, :render_text, view_template <> ".text"))
