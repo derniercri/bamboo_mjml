@@ -49,7 +49,7 @@ defmodule Bamboo.PhoenixMjml do
 
   defp render(email) do
     render_mjml_or_text_email(email)
-  end    
+  end
 
   defp render_mjml_and_text_emails(email) do
     view_template = Atom.to_string(email.private.template)
