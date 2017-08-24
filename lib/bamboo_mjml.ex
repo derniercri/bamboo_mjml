@@ -1,10 +1,13 @@
 defmodule Bamboo.PhoenixMjml do
 
+  import Bamboo.Email, only: [put_private: 3]
+
   defmacro __using__(view: view) do
-    apply(Bamboo.Phoenix, :verify_phoenix_dep, [])
+    verify_phoenix_dep()
     quote do
       import Bamboo.Email
       import Bamboo.PhoenixMjml
+      import Bamboo.Phoenix, except: [render: 3]
       @email_view_module unquote(view)
 
       def render(email, template, assigns \\ []) do
@@ -21,19 +24,13 @@ defmodule Bamboo.PhoenixMjml do
     """
   end
 
-  defp bamboo_phoenix_borrow(arg, args \\ [], fun) do
-    apply(Bamboo.Phoenix, fun, [arg | args])
-  end
-
-  defp bamboo_phoenix_borrow(fun), do: apply(Bamboo.Phoenix, fun, [])
-
   @doc false
   def render_email(view, email, template, assigns) do
     email
-    |> bamboo_phoenix_borrow(:put_default_layouts)
-    |> bamboo_phoenix_borrow(:merge_assigns, [assigns])
-    |> bamboo_phoenix_borrow(:put_view, [view])
-    |> bamboo_phoenix_borrow(:put_template, [template])
+    |> put_default_layouts
+    |> merge_assigns(assigns)
+    |> put_view(view)
+    |> put_template(template)
     |> render
   end
 
@@ -50,14 +47,14 @@ defmodule Bamboo.PhoenixMjml do
 
     email
       |> Map.put(:html_body, render_mjml(email, view_template <> ".html.mjml"))
-      |> Map.put(:text_body, bamboo_phoenix_borrow(email, :render_text, view_template <> ".text"))
+      |> Map.put(:text_body, render_text(email, view_template <> ".text"))
   end
 
   defp render_mjml_or_text_email(email) do
     template = email.private.template
     cond do
       String.ends_with?(template, "mjml.html") -> Map.put(email, :html_body, render_mjml(email, template))
-      String.ends_with?(template, ".text") -> Map.put(email, :text_body, bamboo_phoenix_borrow(email, :render_text, template))
+      String.ends_with?(template, ".text") -> Map.put(email, :text_body, render_text(email, template))
       true -> raise """
         Template name must end in either ".html.mjml" or ".text". Template name was #{inspect template}
 
@@ -69,7 +66,7 @@ defmodule Bamboo.PhoenixMjml do
 
   defp render_mjml(email, template) do
     email
-      |> bamboo_phoenix_borrow(:render_html, [template])
+      |> render_html(template)
       |> compile_mjml
       |> fn html -> Map.put(email, :html_body, html) end.()
   end
@@ -88,5 +85,57 @@ defmodule Bamboo.PhoenixMjml do
           Mjml exited with non zero status, mail has not been compiled
           """
     end
+  end
+
+  defp verify_phoenix_dep do
+    unless Code.ensure_loaded?(Phoenix) do
+      raise "You tried to use Bamboo.Phoenix, but Phoenix module is not loaded. " <>
+      "Please add phoenix to your dependencies."
+    end
+  end
+
+  @doc false
+  def put_default_layouts(%{private: private} = email) do
+    private = private
+      |> Map.put_new(:html_layout, false)
+      |> Map.put_new(:text_layout, false)
+    %{email | private: private}
+  end
+
+  @doc false
+  def merge_assigns(%{assigns: email_assigns} = email, assigns) do
+    assigns = email_assigns |> Map.merge(Enum.into(assigns, %{}))
+    email |> Map.put(:assigns, assigns)
+  end
+
+  @doc false
+  def put_view(email, view_module) do
+    email |> put_private(:view_module, view_module)
+  end
+
+  @doc false
+  def put_template(email, view_template) do
+    email |> put_private(:view_template, view_template)
+  end
+
+  def render_html(email, template) do
+    # Phoenix uses the assigns.layout to determine what layout to use
+    assigns = Map.put(email.assigns, :layout, email.private.html_layout)
+
+    Phoenix.View.render_to_string(
+    email.private.view_module,
+    template,
+    assigns
+    )
+  end
+
+  def render_text(email, template) do
+    assigns = Map.put(email.assigns, :layout, email.private.text_layout)
+
+    Phoenix.View.render_to_string(
+    email.private.view_module,
+    template,
+    assigns
+    )
   end
 end
