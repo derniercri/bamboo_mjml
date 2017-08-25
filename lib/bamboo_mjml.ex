@@ -53,7 +53,7 @@ defmodule Bamboo.PhoenixMjml do
   defp render_mjml_or_text_email(email) do
     template = email.private.view_template
     cond do
-      String.ends_with?(template, "mjml.html") -> Map.put(email, :html_body, render_mjml(email, template))
+      String.ends_with?(template, "html.mjml") -> Map.put(email, :html_body, render_mjml(email, template))
       String.ends_with?(template, ".text") -> Map.put(email, :text_body, render_text(email, template))
       true -> raise """
         Template name must end in either ".html.mjml" or ".text". Template name was #{inspect template}
