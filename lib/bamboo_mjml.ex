@@ -34,7 +34,7 @@ defmodule Bamboo.PhoenixMjml do
     |> render
   end
 
-  defp render(%{private: %{template: template}} = email) when is_atom(template) do
+  defp render(%{private: %{view_template: template}} = email) when is_atom(template) do
     render_mjml_and_text_emails(email)
   end
 
