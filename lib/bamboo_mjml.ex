@@ -43,7 +43,7 @@ defmodule Bamboo.PhoenixMjml do
   end
 
   defp render_mjml_and_text_emails(email) do
-    view_template = Atom.to_string(email.private.template)
+    view_template = Atom.to_string(email.private.view_template)
 
     email
       |> Map.put(:html_body, render_mjml(email, view_template <> ".html.mjml"))
@@ -51,7 +51,7 @@ defmodule Bamboo.PhoenixMjml do
   end
 
   defp render_mjml_or_text_email(email) do
-    template = email.private.template
+    template = email.private.view_template
     cond do
       String.ends_with?(template, "mjml.html") -> Map.put(email, :html_body, render_mjml(email, template))
       String.ends_with?(template, ".text") -> Map.put(email, :text_body, render_text(email, template))
