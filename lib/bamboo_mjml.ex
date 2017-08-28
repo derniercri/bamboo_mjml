@@ -66,18 +66,18 @@ defmodule Bamboo.PhoenixMjml do
 
   defp render_mjml(email, template) do
     email
-      |> render_html(template)
-      |> compile_mjml
-      |> fn html -> Map.put(email, :html_body, html) end.()
+    |> render_html(template)
+    |> compile_mjml
   end
 
   defp compile_mjml(mjml) when is_binary(mjml) do
     uuid = UUID.uuid1
     File.mkdir("tmp")
-    path = File.write!("/tmp/#{uuid}", mjml)
+    path = "/tmp/#{uuid}"
+    File.write!(path, mjml)
     case System.cmd("mjml", ["-s", path]) do
       {html, 0} ->
-        File.rm!(path)
+        :ok = File.rm!(path)
         html
       _         ->
         File.rm!(path)
@@ -123,9 +123,9 @@ defmodule Bamboo.PhoenixMjml do
     assigns = Map.put(email.assigns, :layout, email.private.html_layout)
 
     Phoenix.View.render_to_string(
-    email.private.view_module,
-    template,
-    assigns
+      email.private.view_module,
+      template,
+      assigns
     )
   end
 
