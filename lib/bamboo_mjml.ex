@@ -1,5 +1,54 @@
 defmodule Bamboo.PhoenixMjml do
 
+  @moduledoc """
+    Main module in charge of email rendering, it exposes the same funtion set as
+    `Bamboo.Phoenix` replacing `html` templates with `html.mjml` templates.
+
+    The main differences with `Bamboo.Phoenix` are the following
+    - the two template formats accepted are `text` and `html.mjml`
+    - if you pass an atom as the template name (e.g. :welcome_email) it will render
+    "welcome_email.text" and "welcome_email.html.mjml"
+
+    ## Examples
+
+      defmodule Email do
+        use Bamboo.PhoenixMjml, view: MyApp.EmailView
+
+        def text_and_html_email_with_layout do
+          new_email()
+          # You could set just a text layout or just an html layout
+          |> put_text_layout({MyApp.LayoutView, "email.text"})
+          |> put_html_layout({MyApp.LayoutView, "email.html.mjml"})
+          # Or you can set a layout for both html and text at the same time
+          |> put_layout({MyApp.LayoutView, :email})
+          # Pass an atom to render html AND plain text templates
+          |> render(:text_and_mjml_email)
+        end
+        def text_and_html_email_without_layouts do
+          new_email()
+          |> render(:text_and_mjml_email)
+        end
+        def email_with_assigns(user) do
+          new_email()
+          # @user will be available in the template
+          |> render(:email_with_assigns, user: user)
+        end
+        def email_with_already_assigned_user(user) do
+          new_email()
+          # @user will be available in the template
+          |> assign(:user, user)
+          |> render(:email_with_assigns)
+        end
+        def html_email do
+          new_email
+          |> render("html_email.html.mjml")
+        end
+        def text_email do
+          new_email
+          |> render("text_email.text")
+        end
+      end
+  """
   import Bamboo.Email, only: [put_private: 3]
 
   defmacro __using__(view: view) do
