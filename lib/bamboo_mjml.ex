@@ -124,7 +124,7 @@ defmodule Bamboo.PhoenixMjml do
     File.mkdir("tmp")
     path = "/tmp/#{uuid}"
     File.write!(path, mjml)
-    case System.cmd("mjml", ["-s", path]) do
+    case System.cmd("mjml", ["-l skip -s", path]) do
       {html, 0} ->
         :ok = File.rm!(path)
         html
