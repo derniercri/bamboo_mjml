@@ -56,7 +56,7 @@ defmodule Bamboo.PhoenixMjml do
     quote do
       import Bamboo.Email
       import Bamboo.PhoenixMjml
-      import Bamboo.Phoenix, except: [render: 3]
+      import Bamboo.Phoenix, except: [render: 3, put_layout: 2]
       @email_view_module unquote(view)
 
       def render(email, template, assigns \\ []) do
@@ -124,7 +124,7 @@ defmodule Bamboo.PhoenixMjml do
     File.mkdir("tmp")
     path = "/tmp/#{uuid}"
     File.write!(path, mjml)
-    case System.cmd("mjml", ["-l skip -m -s", path]) do
+    case System.cmd("mjml", ["-l", "skip", "-s", path]) do
       {html, 0} ->
         :ok = File.rm!(path)
         html
@@ -186,5 +186,11 @@ defmodule Bamboo.PhoenixMjml do
     template,
     assigns
     )
+  end
+
+  def put_layout(email, {layout_view, template}) do
+    email
+    |> put_private(:text_layout, {layout_view, to_string(template) <> ".text"})
+    |> put_private(:html_layout, {layout_view, to_string(template) <> ".html.mjml"})
   end
 end
