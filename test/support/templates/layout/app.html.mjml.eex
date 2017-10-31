@@ -1,0 +1,8 @@
+<mjml>
+  <mj-body>
+    <mj-text>
+      MJML Layout
+    </mj-text>
+    <%= render  @view_module, @view_template, assigns %>
+  </mj-body>
+</mjml>
