@@ -29,7 +29,7 @@ defmodule BambooMjml.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:bamboo, "~> 0.8.0"},
+      {:bamboo, "~> 1.0.0-rc.2"},
       {:uuid, "~> 1.1"},
       {:phoenix, "~> 1.1", only: :test}
     ]
